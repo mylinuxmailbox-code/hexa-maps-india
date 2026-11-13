@@ -1,0 +1,104 @@
+# HEXA MAPS — Self-Hostable Local & Pilot Infrastructure Stack (Gate 1)
+#
+# All services are genuinely open-source, replaceable via `ProviderRegistry`,
+# and configured for our initial pilot region: Bengaluru, India.
+# Note: Uses SeaweedFS (Apache-2.0) instead of deprecated MinIO CE.
+
+name: hexa-maps
+
+services:
+  postgis:
+    image: postgis/postgis:17-3.5-alpine
+    container_name: hexa-postgis
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-hexa_maps}
+      POSTGRES_USER: ${POSTGRES_USER:-hexa}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-hexa_local_dev_only}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgis_data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/00-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-hexa} -d ${POSTGRES_DB:-hexa_maps}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  martin:
+    image: ghcr.io/maplibre/martin:v1.8.0
+    container_name: hexa-martin
+    restart: unless-stopped
+    depends_on:
+      postgis:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-hexa}:${POSTGRES_PASSWORD:-hexa_local_dev_only}@postgis:5432/${POSTGRES_DB:-hexa_maps}
+    command: ["--config", "/config/martin.yaml"]
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./martin/martin.yaml:/config/martin.yaml:ro
+      - tile_data:/data/tiles:ro
+
+  valhalla:
+    image: ghcr.io/valhalla/valhalla:3.6.3
+    container_name: hexa-valhalla
+    restart: unless-stopped
+    ports:
+      - "8002:8002"
+    volumes:
+      - valhalla_data:/custom_files
+      - ./valhalla/valhalla.json:/custom_files/valhalla.json:ro
+
+  photon:
+    image: ghcr.io/komoot/photon:1.3.0
+    container_name: hexa-photon
+    restart: unless-stopped
+    ports:
+      - "2322:2322"
+    volumes:
+      - photon_data:/photon/photon_data
+
+  nats:
+    image: nats:2.11-alpine
+    container_name: hexa-nats
+    restart: unless-stopped
+    command: ["-js", "-sd", "/data/jetstream", "-m", "8222"]
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    volumes:
+      - nats_data:/data/jetstream
+
+  seaweedfs:
+    image: chrislusf/seaweedfs:latest
+    container_name: hexa-seaweedfs
+    restart: unless-stopped
+    command: "server -s3 -dir=/data -s3.port=8333"
+    ports:
+      - "8333:8333"
+      - "9333:9333"
+    volumes:
+      - seaweed_data:/data
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    container_name: hexa-keycloak
+    restart: unless-stopped
+    profiles: ["auth"]
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin_local_dev_only}
+    command: ["start-dev"]
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgis_data:
+  tile_data:
+  valhalla_data:
+  photon_data:
+  nats_data:
+  seaweed_data:

@@ -1,0 +1,15 @@
+# Martin v1.8 Tile Server Configuration for HEXA MAPS
+keep_alive: 75
+listen_addresses: '0.0.0.0:3000'
+worker_processes: 4
+
+pmtiles:
+  paths:
+    - /data/tiles
+
+postgres:
+  connection_string: ${DATABASE_URL}
+  auto_publish:
+    tables:
+      from_schemas:
+        - hexa_traffic_public

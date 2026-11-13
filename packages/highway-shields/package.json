@@ -1,0 +1,13 @@
+{
+  "name": "@hexa-maps/highway-shields",
+  "version": "0.1.0",
+  "license": "Apache-2.0 AND CC0-1.0",
+  "type": "module",
+  "main": "./src/index.mjs",
+  "exports": {
+    ".": "./src/index.mjs"
+  },
+  "scripts": {
+    "test": "node --test src/tests/shield-resolver.test.mjs"
+  }
+}

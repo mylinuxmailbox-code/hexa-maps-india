@@ -1,0 +1,9 @@
+# HEXA MAPS — Third-Party Software and Data Attribution Notice
+
+1. **Geographic Data:** © OpenStreetMap contributors, licensed under the Open Database License (ODbL 1.0) — https://www.openstreetmap.org/copyright
+2. **Low-Zoom Cartography:** Made with Natural Earth (Public Domain / CC0) — https://www.naturalearthdata.com/
+3. **Highway Shield Definitions & Patterns:** Derived from OpenStreetMap Americana (`@americana/maplibre-shield-generator`), dedicated to the public domain under CC0 1.0 Universal — https://github.com/osm-americana/openstreetmap-americana
+4. **Map Rendering:** MapLibre GL JS (BSD-3-Clause) and MapLibre Native (BSD-2-Clause) — https://maplibre.org/
+5. **Routing Engine:** Valhalla (MIT License) — https://github.com/valhalla/valhalla
+6. **Tile Serving:** Martin (MIT / Apache-2.0) — https://github.com/maplibre/martin
+7. **Geocoding:** Photon (Apache-2.0) — https://github.com/komoot/photon

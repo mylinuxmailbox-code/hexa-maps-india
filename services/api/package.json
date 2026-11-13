@@ -1,0 +1,10 @@
+{
+  "name": "@hexa-maps/api",
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./src/index.mjs",
+  "scripts": {
+    "test": "node --test src/tests/api-privacy-and-providers.test.mjs"
+  }
+}
